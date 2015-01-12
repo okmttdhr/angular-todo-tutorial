@@ -8,20 +8,26 @@
  *
  * Main module of the application.
  */
-angular
-  .module('angularTodoTutorialApp', [
-    'ngAnimate',
-    'ngCookies',
-    'ngResource',
-    'ngRoute',
-    'ngSanitize',
-    'ngTouch'
-  ])
-  .config(function ($routeProvider) {
+
+ var angularTodoTutorialApp = angular.module('angularTodoTutorialApp', [
+     'ngAnimate',
+     'ngCookies',
+     'ngResource',
+     'ngRoute',
+     'ngSanitize',
+     'ngTouch',
+
+     'todoControllers',
+     'todoDirectives'
+   ]);
+
+
+angularTodoTutorialApp.config(['$routeProvider',
+  function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        controller: 'MainController'
       })
       .when('/about', {
         templateUrl: 'views/about.html',
@@ -30,4 +36,4 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  });
+  }]);
