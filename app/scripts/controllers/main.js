@@ -10,84 +10,70 @@
 
 var todoControllers = angular.module('todoControllers', []);
 
-todoControllers.controller('MainController', ['$scope', '$filter',
-  function($scope, $filter) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
+todoControllers.controller('RegisterController', ['$scope', 'todos', function ($scope, todos) {
+  $scope.newTitle = '';
 
-    $scope.todos = [];
+  $scope.addTodo = function () {
+    todos.add($scope.newTitle);
+    $scope.newTitle = '';
+  };
+}]);
 
-    var where = $filter('filter'); // filter フィルタ関数の取得
-    $scope.$watch('todos', function (todos) {
-      // todos が増減したり各要素のプロパティが変更された時に実行される
-      var length = todos.length;
+todoControllers.controller('ToolbarController', ['$scope', 'todos', function ($scope, todos) {
+  $scope.filter = todos.filter;
 
-      $scope.allCount = length;                                   // 総件数モデル
-      $scope.doneCount = where(todos, $scope.filter.done).length; // 完了件数モデル
-      $scope.remainingCount = length - $scope.doneCount;          // 未了件数モデル
-    }, true);
+  $scope.$on('change:list', function (evt, list) {
+    var length = list.length;
+    var doneCount = todos.getDone().length;
 
-    $scope.addTodo = function () {
-      $scope.todos.push({
-        title: $scope.newTitle,
-        done: false
-      });
+    $scope.allCount = length;
+    $scope.doneCount = doneCount;
+    $scope.remainingCount = length - doneCount;
+  });
 
-      $scope.newTitle = '';
-    };
+  $scope.checkAll = function () {
+    todos.changeState(!!$scope.remainingCount);
+  };
 
-    var originalTitle;     // 編集前の要件
-    $scope.editing = null; // 編集モードの ToDo モデルを表すモデル
+  $scope.changeFilter = function (filter) {
+    $scope.$emit('change:filter', filter);
+  };
 
-    $scope.editTodo = function (todo) {
-      originalTitle = todo.title;
-      $scope.editing = todo;
-    };
+  $scope.removeDoneTodo = function () {
+    todos.removeDone();
+  };
+}]);
 
-    $scope.doneEdit = function (todoForm) {
-      if (todoForm.$invalid) {
-        $scope.editing.title = originalTitle;
-      }
+todoControllers.controller('TodoListController', ['$scope', 'todos', function ($scope, todos) {
+  $scope.$on('change:list', function (evt, list) {
+    $scope.todoList = list;
+  });
 
-      $scope.editing = null;
-    };
+  var originalTitle;
 
-    // 全て完了/未了
-    $scope.checkAll = function () {
-      var state = !!$scope.remainingCount; // 未了にするのか完了にするのかの判定
+  $scope.editing = null;
 
-      angular.forEach($scope.todos, function (todo) {
-        todo.done = state;
-      });
-    };
+  $scope.editTodo = function (todo) {
+    originalTitle = todo.title;
+    $scope.editing = todo;
+  };
 
-    // 完了した ToDo を全て削除
-    $scope.removeDoneTodo = function () {
-      $scope.todos = where($scope.todos, $scope.filter.remaining);
-    };
+  $scope.doneEdit = function (todoForm) {
+    if (todoForm.$invalid) {
+      $scope.editing.title = originalTitle;
+    }
+    $scope.editing = originalTitle = null;
+  };
 
-    // 任意の ToDo を削除
-    $scope.removeTodo = function (currentTodo) {
-      $scope.todos = where($scope.todos, function (todo) {
-        return currentTodo !== todo;
-      });
-    };
+  $scope.removeTodo = function (todo) {
+    todos.remove(todo);
+  };
+}])
 
-    // フィルタリング条件モデル
-    $scope.filter = {
-      done: { done: true },      // 完了のみ
-      remaining: { done: false } // 未了のみ
-    };
+todoControllers.controller('MainController', ['$scope', function ($scope) {
+  $scope.currentFilter = null;
 
-    // 現在のフィルタの状態モデル
-    $scope.currentFilter = null;
-
-    // フィルタリング条件を変更するメソッド
-    $scope.changeFilter = function (filter) {
-      $scope.currentFilter = filter;
-    };
-  }
-]);
+  $scope.$on('change:filter', function (evt, filter) {
+    $scope.currentFilter = filter;
+  });
+}])

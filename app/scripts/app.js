@@ -17,6 +17,7 @@
      'ngSanitize',
      'ngTouch',
 
+     'todoServices',
      'todoControllers',
      'todoDirectives'
    ]);
