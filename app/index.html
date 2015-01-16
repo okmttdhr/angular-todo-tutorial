@@ -78,7 +78,8 @@
         <hr>
 
         <ul class="list-unstyled" ng-controller="TodoListController">
-          <li class="todo-item"
+          <li
+            class="todo-item"
             ng-repeat="todo in todoList | filter:currentFilter"
             ng-class="{done: todo.done, editing: todo == editing}">
               <form class="input-group input-group-lg"
